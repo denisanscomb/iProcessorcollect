@@ -1,4 +1,126 @@
+// SHEET IDS
+
+// Robustified Index Master: 1sEjzhq96me6aaQLIBqY6Wfgy9D6VrKhtHL9eUoqyT2Q
+// Test Rig iQA: 1-5Vf4LbGOI29eVabBluk8WoHg5-8qJkzhgazLdLtVDE
+
+
+
 function collect() {
+  // creates 3 arrays of any existing events. ret remains, QA goest to Events Queue and arch to 9001 NE and U archive
+  var arcss1 = SpreadsheetApp.openById("1-R-rShtcmrvJ1UKjEC-LZ2lungaLGtRW0dC3DwLXf8I").getSheetByName("Sheet1"); // 9001 NE and U - Non-Events and Unchanged
+   var ss1 = SpreadsheetApp.openById("1q_gMJRlJzEgdnlN0Zx2LtSIurEpokrroteUH87ixmAc").getSheetByName("Sheet1"); // 1201 Analysts Notes
+  var l3 = ss1.getLastRow();
+  var arcss2 = arcss1.getLastRow();
+  var ss = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("New Events");
+  var l2 = ss.getLastRow();
+  Logger.log(l2)
+  var ssEL = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Event List");
+  var p2 = ssEL.getRange(1,1).getValue();
+  var prep = ss.getRange("k2:k").getValues(); // column of events as per their id numbers
+  var last = prep.filter(String).length; // number of events
+  var data = ss.getRange(2,1,last,36).getValues(); // array of events
+  var QA = new Array();
+  var ret = new Array();
+  var arch = new Array();
+  
+  var notes = ss.getRange(2,1,l2,35).getNotes();
+  var beef = ss.getRange(2,1,l2,35).getValues();
+  var notey = new Array();
+  
+  Logger.log(beef)
+  
+  for(z in notes){
+    var row = notes[z];
+   var bino = row.join();
+    var bi = bino.length;
+    if(bi >34){ 
+     var blah = beef[z];
+      Logger.log(z)
+      notey.push(blah);
+      notey.push(row);
+     
+      Logger.log(bi)
+    }
+  }
+  //  Logger.log(notey)
+  if(notey.length >0){
+  
+   ss1.getRange(l3+1, 1, notey.length, notey[0].length).setValues(notey);  
+   ss.clearNotes();
+  }
+  
+  // this first phase works fine - pushes the notes and related events to sheet 1201
+  
+  for(y in data){  // gets the array of events
+    
+    var label = data[y][5];  // the label column
+    var labelled = true;
+    var row = data[y];
+    if(label == ""){  
+      ret.push(row);
+      var labelled = false;
+    }
+    if(label == "NO CHANGE" || label == "NON-EVENT"){
+      arch.push(row);
+      var labelled = false;
+    }
+    if(labelled == true){
+       QA.push(row);
+    } 
+  }
+  
+  
+
+  
+ ss.getRange(2,1,l2,37).clearContent();
+    
+    if(ret.length >0){
+ ss.getRange(2, 1, ret.length, ret[0].length).setValues(ret);
+    }
+  
+    
+    if(arch.length >0){
+ arcss1.getRange(arcss2+1, 1, arch.length, arch[0].length).setValues(arch);
+    }
+    
+    if(QA.length >0){
+
+  var p3 = p2+2;
+  for(var m = 0; m < QA.length; m++){
+  ssEL.getRange(p3,2).setValue(QA[m][0]);
+  ssEL.getRange(p3,3).setValue(QA[m][28]); // Company
+    Logger.log
+  ssEL.getRange(p3,6).setValue(QA[m][2]);
+  ssEL.getRange(p3,7).setValue(QA[m][1]); // Account
+  ssEL.getRange(p3,8).setValue(QA[m][12]); // LinkedIn
+  ssEL.getRange(p3,9).setValue(QA[m][29]); // CONtact email ----
+  ssEL.getRange(p3,11).setValue(QA[m][30]); // user email
+  ssEL.getRange(p3,12).setValue(QA[m][32]); // user story
+  ssEL.getRange(p3,13).setValue(QA[m][31]); // contact role
+  ssEL.getRange(p3,14).setValue(QA[m][6]); // Event note
+  ssEL.getRange(p3,15).setValue(QA[m][5]); // Event Label
+  ssEL.getRange(p3,16).setValue(QA[m][4]); // event URL
+  ssEL.getRange(p3,17).setValue(QA[m][9]); // event date
+  ssEL.getRange(p3,20).setValue(QA[m][7]); // BAU
+  ssEL.getRange(p3,21).setValue(QA[m][8]); // IMPACT
+  ssEL.getRange(p3,22).setValue(QA[m][11]); // Home page
+  ssEL.getRange(p3,23).setValue(QA[m][19]); // last bmail
+  ssEL.getRange(p3,24).setValue(QA[m][10]); // ID
+  
+    
+  var p3 = p3+1;
+  }
+}
+}
+
+
+
+ 
+  
+  
+  
+  
+function oldcollect() {
   
   var satSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Input Sheet"); // identifies the sheets at the account level
   var eventSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Event List");
@@ -7,8 +129,8 @@ function collect() {
  
   for(var i = 3; i < 253; i++){
     
-    var event1 = satSheet.getRange(i,41).getValue(); // column 28 is where the label is 
-    var event2 = satSheet.getRange(i,47).getValue(); // column 33 is where the second label is
+    var event1 = satSheet.getRange(i,41).getValue(); // column 41 is where the label is 
+    var event2 = satSheet.getRange(i,47).getValue(); // column 47 is where the second label is
     
 
     if(event2 !== "") { 
@@ -45,6 +167,7 @@ function collect() {
     var eventIMP2 = satSheet.getRange(i,50).getValue(); // event IMP 2
     var eventDate2 = satSheet.getRange(i,51).getValue(); // event date 2
     var eventhstat = satSheet.getRange(i,16).getValue(); // event home static
+    var eventlbmail = satSheet.getRange(i,54).getValue(); // last bmail for that contact 
       
       Logger.log(user);
     
@@ -67,6 +190,7 @@ function collect() {
     eventSheet.getRange(newPrint,20).setValue(eventBAU1); // event 1 BAU
     eventSheet.getRange(newPrint,21).setValue(eventIMP1); // event 1 IMP
     eventSheet.getRange(newPrint,22).setValue(eventhstat); // event 1 home static
+    eventSheet.getRange(newPrint,23).setValue(eventlbmail); // event bmail
       
     eventSheet.getRange(nP2,5).setValue(i);
     eventSheet.getRange(nP2,6).setValue(Contact);
@@ -86,7 +210,9 @@ function collect() {
     eventSheet.getRange(nP2,17).setValue(eventDate2); // event 2 date
     eventSheet.getRange(nP2,20).setValue(eventBAU2); // event 2 BAU
     eventSheet.getRange(nP2,21).setValue(eventIMP2); // event 2 IMP
-    eventSheet.getRange(nP2,21).setValue(eventhstat); // event 2 home static
+    eventSheet.getRange(nP2,22).setValue(eventhstat); // event 2 home static
+    eventSheet.getRange(nP2,23).setValue(eventlbmail); // event bmail
+    
       
     } else if(event1 !== "") {
       
@@ -112,7 +238,8 @@ function collect() {
     var contactComp = satSheet.getRange(i,1).getValue(); // contact's company
     var contactLI = satSheet.getRange(i,30).getValue(); // contact's LinkedIn
     var contactRole = satSheet.getRange(i,13).getValue(); // contacts's role
-    var eventhstat = satSheet.getRange(i,16).getValue(); // event home static  
+    var eventhstat = satSheet.getRange(i,16).getValue(); // event home static
+    var eventlbmail = satSheet.getRange(i,54).getValue(); // last bmail for that contact 
     
     eventSheet.getRange(newPrint,5).setValue(i);
     eventSheet.getRange(newPrint,6).setValue(Contact);
@@ -132,10 +259,12 @@ function collect() {
     eventSheet.getRange(newPrint,17).setValue(eventDate1); // event 1 date
     eventSheet.getRange(newPrint,20).setValue(eventBAU1); // event 1 BAU
     eventSheet.getRange(newPrint,21).setValue(eventIMP1); // event 1 IMP  
-    eventSheet.getRange(newPrint,22).setValue(eventhstat); // event 1 home static  
+    eventSheet.getRange(newPrint,22).setValue(eventhstat); // event 1 home static
+    eventSheet.getRange(newPrint,23).setValue(eventlbmail); // last bmail
       
     }
   }
-  
+  satSheet.getRange("an3:ba300").clearContent();
+    
   
 }
