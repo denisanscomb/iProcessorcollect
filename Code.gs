@@ -2,18 +2,24 @@
 
 // Robustified Index Master: 1sEjzhq96me6aaQLIBqY6Wfgy9D6VrKhtHL9eUoqyT2Q
 // Test Rig iQA: 1-5Vf4LbGOI29eVabBluk8WoHg5-8qJkzhgazLdLtVDE
-
+// 9001 NE and U - Non-Events and Unchanged: 1-R-rShtcmrvJ1UKjEC-LZ2lungaLGtRW0dC3DwLXf8I
+// 1201 Analysts Notes: 1q_gMJRlJzEgdnlN0Zx2LtSIurEpokrroteUH87ixmAc
+// iDatabase: 1PDSr53kxFwWGDk9CdEu3KGu8mysSMxtExj7VRXV13nY
+// 1301 Data Storage: 1W8ECF6uqytFJJ927CH3Z5-Ki5sYR0mgv69UWHRt-wSk
 
 
 function collect() {
   // creates 3 arrays of any existing events. ret remains, QA goest to Events Queue and arch to 9001 NE and U archive
+  var analyst = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Sheet Details").getRange(7,3).getValue(); // finds the email address of the analyst on the Sheet Details
+  var tDate = new Date();
+  var ss3 = SpreadsheetApp.openById("1W8ECF6uqytFJJ927CH3Z5-Ki5sYR0mgv69UWHRt-wSk").getSheetByName("Sheet1"); // 1301 Data Storage
+  var SQL = ss3.getRange("A1:A2000").getValues();
   var arcss1 = SpreadsheetApp.openById("1-R-rShtcmrvJ1UKjEC-LZ2lungaLGtRW0dC3DwLXf8I").getSheetByName("Sheet1"); // 9001 NE and U - Non-Events and Unchanged
    var ss1 = SpreadsheetApp.openById("1q_gMJRlJzEgdnlN0Zx2LtSIurEpokrroteUH87ixmAc").getSheetByName("Sheet1"); // 1201 Analysts Notes
   var l3 = ss1.getLastRow();
   var arcss2 = arcss1.getLastRow();
   var ss = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("New Events");
   var l2 = ss.getLastRow();
-  Logger.log(l2)
   var ssEL = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Event List");
   var p2 = ssEL.getRange(1,1).getValue();
   var prep = ss.getRange("k2:k").getValues(); // column of events as per their id numbers
@@ -27,31 +33,25 @@ function collect() {
   var beef = ss.getRange(2,1,l2,35).getValues();
   var notey = new Array();
   
-  Logger.log(beef)
-  
+  // the section below sweeps the notes from the analysts sheets to 1201 Analysts Notes
   for(z in notes){
     var row = notes[z];
    var bino = row.join();
     var bi = bino.length;
     if(bi >34){ 
      var blah = beef[z];
-      Logger.log(z)
       notey.push(blah);
       notey.push(row);
-     
-      Logger.log(bi)
     }
   }
-  //  Logger.log(notey)
   if(notey.length >0){
-  
    ss1.getRange(l3+1, 1, notey.length, notey[0].length).setValues(notey);  
    ss.clearNotes();
   }
   
-  // this first phase works fine - pushes the notes and related events to sheet 1201
+  // this next part distributes the events between 9001, 'Event List' and remaining +++ pushings NE events to 1301 Data Storage
   
-  for(y in data){  // gets the array of events
+  for(y in data){  // this clause creates a new array of unlabelled events and prints them back onto the sheet
     
     var label = data[y][5];  // the label column
     var labelled = true;
@@ -60,17 +60,26 @@ function collect() {
       ret.push(row);
       var labelled = false;
     }
-    if(label == "NO CHANGE" || label == "NON-EVENT"){
+    
+    if(label == "NO CHANGE" || label == "NON-EVENT"){  // this clause pushes NC/NE events to 9001 && 1301
       arch.push(row);
+      for (var z = 0; z<2000; z++){
+        var blah = SQL[z];
+        var lame = blah.toString();
+        if(lame.indexOf("indexed1")<0 && lame.indexOf(data[y][10])>=0 &&  lame.indexOf(data[y][0])>=0 && lame.indexOf(data[y][2])>=0){ // lame.indexOf("indexed1")<0 && 
+            var big = [blah,analyst,tDate,label,"indexed1"];
+            var newblah = big.join();
+            ss3.getRange(z+1,1).setValue(newblah);
+          
+        }      
+      }
+     
       var labelled = false;
     }
     if(labelled == true){
        QA.push(row);
     } 
   }
-  
-  
-
   
  ss.getRange(2,1,l2,37).clearContent();
     
@@ -89,7 +98,7 @@ function collect() {
   for(var m = 0; m < QA.length; m++){
   ssEL.getRange(p3,2).setValue(QA[m][0]);
   ssEL.getRange(p3,3).setValue(QA[m][28]); // Company
-    Logger.log
+    
   ssEL.getRange(p3,6).setValue(QA[m][2]);
   ssEL.getRange(p3,7).setValue(QA[m][1]); // Account
   ssEL.getRange(p3,8).setValue(QA[m][12]); // LinkedIn
@@ -110,15 +119,11 @@ function collect() {
     
   var p3 = p3+1;
   }
+      
+    
 }
 }
 
-
-
- 
-  
-  
-  
   
 function oldcollect() {
   
